@@ -11,7 +11,8 @@ export const metadata = {
     name: 'AppKit',
     description: 'AppKit Example',
     url: 'https://reown.com',
-    icons: ['https://avatars.githubusercontent.com/u/179229932']
+    icons: ['https://avatars.githubusercontent.com/u/179229932'],
+    
   }
 
 export const networks = [ arbitrumSepolia, scrollSepolia ] as [AppKitNetwork, ...AppKitNetwork[]]
