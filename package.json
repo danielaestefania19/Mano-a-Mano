@@ -19,6 +19,7 @@
     "@web3auth/openlogin-adapter": "^8.12.4",
     "buffer": "^6.0.3",
     "ethers": "^6.15.0",
+    "lucide-react": "^0.552.0",
     "process": "^0.11.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
