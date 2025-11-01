@@ -183,7 +183,7 @@ const NewTandaModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         <div className="flex justify-between items-center mb-5 border-b pb-3">
           <h2 className="text-2xl font-semibold text-gray-800">Crear nueva tanda</h2>
           <button onClick={onClose}>
-            <X className="text-gray-500 hover:text-gray-700 transition" size={22} />
+            <X className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition" size={22} />
           </button>
         </div>
 

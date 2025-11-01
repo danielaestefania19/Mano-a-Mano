@@ -116,6 +116,7 @@ export function useSavingsCircles() {
           network,
           params
         );
+        
         await fetchCircles();
         return txHash;
       } catch (err: unknown) {

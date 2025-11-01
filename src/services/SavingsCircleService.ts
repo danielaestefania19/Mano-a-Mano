@@ -5,6 +5,7 @@ import { type SavingsCircleInterface } from "../interfaces/SavingsCircleInterfac
 import { type Participant, type Round } from "../types/types";
 import SavingsCircleArtifact from "../contracts/abi/SavingsCircle.json";
 
+
 /**
  * 🏦 Concrete implementation of the SavingsCircleInterface.
  * Handles all blockchain interactions for an individual SavingsCircle contract.
