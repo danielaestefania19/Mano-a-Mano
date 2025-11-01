@@ -1,5 +1,5 @@
 import { type SupportedNetwork } from "../config/contracts"
-import { type CreateCircleParams } from "../types/types"
+import { type Circle, type CreateCircleParams } from "../types/types"
 import { type Hash } from "viem"
 /**
  * Interface that defines all the methods for interacting with
@@ -23,6 +23,12 @@ export interface SavingsCircleFactoryInterface {
    * @param network - The target EVM network
    */
   getAllCircles(network: SupportedNetwork): Promise<readonly Hash[]>
+
+  /**
+   * Fetches detailed information about a specific SavingsCircle.
+   * @param address - The contract address of the SavingsCircle
+   */
+  getCircleInfo(address: Hash): Promise<Circle>
 
   /**
    * Fetches all circles created by a specific user.
