@@ -14,7 +14,7 @@ import "./SavingsCircleFactory.sol";
  *      - Participants self-manage all deposits and rounds.
  *      - No admin intervention is required at any point.
  *      - Includes an internal insurance pool for protection against default.
- *
+ *xx
  * Core mechanics:
  * - Each participant deposits an insurance collateral when joining.
  * - The tanda starts automatically when all participants have joined.
@@ -398,7 +398,7 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Checks whether Chainlink Upkeep should trigger (e.g., a round expired).
+     * @notice Checks whether Upkeep should trigger (e.g., a round expired).
      * @dev Returns true only if the active round has passed its end time.
      */
     function checkUpkeep(bytes calldata)

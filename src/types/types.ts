@@ -21,3 +21,24 @@ export interface Circle {
  * 🧩 Data model representing a SavingsCircle creation request.
  */
 export type CreateCircleParams = Omit<Circle, "address" | "owner">;
+
+
+/**
+ * 🧠 Represents a participant profile in a SavingsCircle.
+ */
+export interface Participant {
+  wallet: Hash;
+  name: string;
+}
+
+/**
+ * 🔁 Represents a savings round within a circle.
+ */
+export interface Round {
+  index: bigint;
+  totalCollected: bigint;
+  beneficiary: Hash;
+  status: number; 
+  startTime: bigint;
+  endTime: bigint;
+}
