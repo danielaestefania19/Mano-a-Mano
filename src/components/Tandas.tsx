@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSavingsCircles } from "../hooks/useSavingsCircleFactory";
 import NewTandaModal from "./NewTandaModal";
 import { getEthToMxnRate } from "../services/ethPriceService";
+import { useNavigate } from "react-router-dom";
 
 export default function Tandas() {
   const {
@@ -12,7 +13,7 @@ export default function Tandas() {
     error,
     refetch,
   } = useSavingsCircles();
-
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ethToMxn, setEthToMxn] = useState<number>(0);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
@@ -101,6 +102,9 @@ export default function Tandas() {
           >
             Crear nueva tanda
           </button>
+          <div className="mt-auto">
+            <appkit-button />
+          </div>
         </div>
       </div>
 
@@ -170,11 +174,10 @@ export default function Tandas() {
                                 alt={item.name}
                                 onLoad={() => handleImageLoad(item.address)}
                                 onError={() => handleImageLoad(item.address)}
-                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${
-                                  loadedImages[item.address]
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
+                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${loadedImages[item.address]
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                                  }`}
                               />
                             </div>
                             <span className="font-medium">{item.name}</span>
@@ -198,11 +201,10 @@ export default function Tandas() {
                                 alt="owner"
                                 onLoad={() => handleImageLoad(item.owner)}
                                 onError={() => handleImageLoad(item.owner)}
-                                className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${
-                                  loadedImages[item.owner]
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
+                                className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${loadedImages[item.owner]
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                                  }`}
                               />
                             </div>
                             <span className="text-sm text-gray-700">
@@ -275,11 +277,10 @@ export default function Tandas() {
                                 alt={item.name}
                                 onLoad={() => handleImageLoad(item.address)}
                                 onError={() => handleImageLoad(item.address)}
-                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${
-                                  loadedImages[item.address]
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
+                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${loadedImages[item.address]
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                                  }`}
                               />
                             </div>
                             <span className="font-medium">{item.name}</span>
@@ -292,18 +293,17 @@ export default function Tandas() {
                           <td className="p-3 flex items-center gap-2">
                             <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
                               {!loadedImages[item.owner] && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
+                                <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
                               )}
                               <img
                                 src={`https://i.pravatar.cc/100?u=${item.owner}`}
                                 alt="creator"
                                 onLoad={() => handleImageLoad(item.owner)}
                                 onError={() => handleImageLoad(item.owner)}
-                                className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${
-                                  loadedImages[item.owner]
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
+                                className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${loadedImages[item.owner]
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                                  }`}
                               />
                             </div>
                             <span className="text-sm text-gray-700">
@@ -311,7 +311,10 @@ export default function Tandas() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <button className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition">
+                            <button
+                              onClick={() => navigate(`/tanda/${item.address}`)}
+                              className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition"
+                            >
                               Unirme
                             </button>
                           </td>

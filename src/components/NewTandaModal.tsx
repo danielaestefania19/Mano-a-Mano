@@ -66,7 +66,7 @@ const NewTandaModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
         void fetchRate()
 
-        const interval = setInterval(fetchRate, 5 * 60 * 1000) // ✅ usar const aquí
+        const interval = setInterval(fetchRate, 5 * 60 * 1000) 
 
         return () => clearInterval(interval)
     }, [])
