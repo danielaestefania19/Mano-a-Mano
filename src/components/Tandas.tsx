@@ -175,8 +175,8 @@ export default function Tandas() {
                                 onLoad={() => handleImageLoad(item.address)}
                                 onError={() => handleImageLoad(item.address)}
                                 className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${loadedImages[item.address]
-                                  ? "opacity-100"
-                                  : "opacity-0"
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                   }`}
                               />
                             </div>
@@ -202,8 +202,8 @@ export default function Tandas() {
                                 onLoad={() => handleImageLoad(item.owner)}
                                 onError={() => handleImageLoad(item.owner)}
                                 className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${loadedImages[item.owner]
-                                  ? "opacity-100"
-                                  : "opacity-0"
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                   }`}
                               />
                             </div>
@@ -278,8 +278,8 @@ export default function Tandas() {
                                 onLoad={() => handleImageLoad(item.address)}
                                 onError={() => handleImageLoad(item.address)}
                                 className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${loadedImages[item.address]
-                                  ? "opacity-100"
-                                  : "opacity-0"
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                   }`}
                               />
                             </div>
@@ -301,8 +301,8 @@ export default function Tandas() {
                                 onLoad={() => handleImageLoad(item.owner)}
                                 onError={() => handleImageLoad(item.owner)}
                                 className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${loadedImages[item.owner]
-                                  ? "opacity-100"
-                                  : "opacity-0"
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                   }`}
                               />
                             </div>
@@ -311,12 +311,12 @@ export default function Tandas() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <button
-                              onClick={() => navigate(`/tanda/${item.address}`)}
-                              className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition"
-                            >
-                              Unirme
-                            </button>
+                           <button
+    onClick={() => navigate(`/tanda/${item.address}`)}
+    className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition"
+  >
+    Unirme
+  </button>
                           </td>
                         </tr>
                       );
