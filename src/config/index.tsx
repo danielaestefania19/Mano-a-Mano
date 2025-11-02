@@ -1,5 +1,5 @@
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { arbitrumSepolia, scrollSepolia } from '@reown/appkit/networks'
+import { mainnet, arbitrumSepolia, scrollSepolia } from '@reown/appkit/networks'
 import type { AppKitNetwork } from '@reown/appkit/networks'
 
 export const projectId = import.meta.env.VITE_PROJECT_ID
@@ -15,7 +15,7 @@ export const metadata = {
     
   }
 
-export const networks = [ arbitrumSepolia, scrollSepolia ] as [AppKitNetwork, ...AppKitNetwork[]]
+export const networks = [ mainnet, arbitrumSepolia, scrollSepolia ] as [AppKitNetwork, ...AppKitNetwork[]]
 
 export const wagmiAdapter = new WagmiAdapter({
   projectId,

@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { projectId, metadata, networks, wagmiAdapter } from "./config";
 import Sidebar from "./components/Sidebar";
 import Tandas from "./components/Tandas";
-import TandaDetail from "./components/TandaDetail";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -28,18 +27,18 @@ createAppKit({
   },
 });
 
-
 export function App() {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex h-screen bg-gray-50">
       <WagmiProvider config={wagmiAdapter.wagmiConfig}>
         <QueryClientProvider client={queryClient}>
-            <Sidebar />
+          <Sidebar />
+          <div className="flex-1 overflow-y-auto">
             <Routes>
               <Route path="/" element={<Navigate to="/circles" replace />} />
               <Route path="/circles" element={<Tandas />} />
-              <Route path="/tanda/:address" element={<TandaDetail />} />
             </Routes>
+          </div>
         </QueryClientProvider>
       </WagmiProvider>
     </div>

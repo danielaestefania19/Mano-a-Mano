@@ -5,7 +5,7 @@ import Logo from "../assets/Logo.png";
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className="flex flex-col justify-between h-screen w-64 bg-primary text-white p-6 shadow-lg">
+   <aside className="flex flex-col justify-between h-full w-64 bg-primary text-white p-6 shadow-lg shrink-0">
       <div>
         <div className="flex items-center justify-between mb-8">
           <img src={Logo} alt="Logo" className="w-12 h-12" />
