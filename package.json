@@ -29,7 +29,8 @@
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.5",
     "viem": "^2.38.5",
-    "wagmi": "^2.19.2"
+    "wagmi": "^2.19.2",
+    "serve": "^14.2.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
