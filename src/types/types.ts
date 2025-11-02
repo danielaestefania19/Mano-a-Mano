@@ -28,7 +28,7 @@ export type CreateCircleParams = Omit<Circle, "address" | "owner">;
  */
 export interface Participant {
   wallet: Hash;
-  name: string;
+  hasContributed?: Record<number, boolean>;
 }
 
 /**

@@ -12,14 +12,17 @@ export interface NetworkContracts {
  *  Contract addresses for supported networks.
  */
 export const CONTRACT_ADDRESSES: Record<
-  'arbitrumSepolia' | 'scrollSepolia',
+  'arbitrumSepolia' | 'scrollSepolia' | 'etherumMainnet',
   NetworkContracts
 > = {
   arbitrumSepolia: {
-    factory: '0x12060831E33E51D78F2fB1c30b361A6E20870894',
+    factory: '0xD4e4Ea2A6373Bc86A23a51CCB622C1D58fe2Aa29',
   },
   scrollSepolia: {
-    factory: '0x33c8BdEBFb083fA77C7c0eB8b3B490B350BcCc4e',
+    factory: '0xdfe2F90fe244Ebdc87A7C60F63c90259896e0a89',
+  },
+  etherumMainnet: {
+    factory: '0x721cC1f4dF6F89d05cF441192db2598aeED0a98b',
   },
 } as const
 

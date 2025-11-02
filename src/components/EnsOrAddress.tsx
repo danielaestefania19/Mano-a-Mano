@@ -2,7 +2,6 @@ import { useEnsName, useEnsAvatar } from "wagmi";
 import { mainnet } from "wagmi/chains";
 
 export default function EnsOrAddress({ address, size = 32 }: { address: `0x${string}`; size?: number }) {
-  console.log("EnsOrAddress - address:", address);
   const { data: ensName } = useEnsName({
     address,
     chainId: mainnet.id, 
@@ -12,9 +11,6 @@ export default function EnsOrAddress({ address, size = 32 }: { address: `0x${str
     name: ensName ?? undefined,
     chainId: mainnet.id, 
   });
-
-  console.log("EnsOrAddress - ensName:", ensName);
-  console.log("EnsOrAddress - ensAvatar:", ensAvatar);
 
   const fallbackAvatar = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${address}`;
   const avatarUrl = ensAvatar || fallbackAvatar;

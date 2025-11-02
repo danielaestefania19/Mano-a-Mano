@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X, CheckCircle, AlertTriangle, ImagePlus } from "lucide-react";
-import { useSavingsCircles } from "../hooks/useSavingsCircleFactory";
+import { useSavingsCirclesFactory } from "../hooks/useSavingsCircleFactory";
 import { type CreateCircleParams } from "../types/types";
 import { parseEther } from "viem";
 import { getEthToUsdtRate } from "../services/ethPriceService";
@@ -8,6 +8,8 @@ import { uploadToPinata } from "../services/pinataService";
 import { useChainId } from "wagmi";
 import arbitrum_icon from "../assets/arbitrum_icon.png";
 import scroll_icon from "../assets/scroll_icon.png";
+import etherum_icon from "../assets/etherum_icon.png";
+import { arbitrumSepolia, scrollSepolia, mainnet } from "@reown/appkit/networks";
 
 
 const NewTandaModal: React.FC<{ isOpen: boolean; onClose: () => void, refetchParent: () => void }> = ({
@@ -15,7 +17,7 @@ const NewTandaModal: React.FC<{ isOpen: boolean; onClose: () => void, refetchPar
   onClose,
   refetchParent,
 }) => {
-  const { addCircle, loading, error } = useSavingsCircles();
+  const { addCircle, loading, error } = useSavingsCirclesFactory();
   const chainId = useChainId();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -40,8 +42,23 @@ const NewTandaModal: React.FC<{ isOpen: boolean; onClose: () => void, refetchPar
   >("weekly");
   const [customDays, setCustomDays] = useState("");
 
-  const networkLogo = chainId === 421614 ? arbitrum_icon : scroll_icon;
-  const networkName = chainId === 421614 ? "Arbitrum Sepolia" : "Scroll Sepolia";
+  const networkName = chainId === arbitrumSepolia.id
+    ? "Arbitrum Sepolia"
+    : chainId === scrollSepolia.id
+    ? "Scroll Sepolia"
+    : chainId === mainnet.id
+    ? "Ethereum Mainnet"
+    : "Red Desconocida";
+
+  const networkLogo =
+    chainId === arbitrumSepolia.id
+      ? arbitrum_icon
+      : chainId === scrollSepolia.id
+      ? scroll_icon
+      : chainId === mainnet.id
+      ? etherum_icon
+      : "";
+  
 
   useEffect(() => {
     if (isOpen) {

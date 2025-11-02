@@ -13,12 +13,12 @@ export interface SavingsCircleInterface {
    * Allows a user to join a SavingsCircle by sending the required insurance deposit.
    *
    * @param circleAddress - The address of the SavingsCircle contract to join
-   * @param name - The display name of the participant joining the circle
+   * @param insuranceDeposit - The insurance deposit amount required to join
    * @returns The transaction hash confirming the join operation
    */
   joinCircle(
     circleAddress: Hash,
-    name: string
+    insuranceDeposit: bigint
   ): Promise<Hash>;
 
   /**
@@ -53,4 +53,19 @@ export interface SavingsCircleInterface {
     circleAddress: Hash,
     amount: bigint
   ): Promise<Hash>;
+
+  /**
+   * Checks if a participant has already contributed in a specific round.
+   *
+   * @param circleAddress - The address of the SavingsCircle contract  
+   * @param roundIndex - The index of the round to check  
+   * @param participant - The wallet address of the participant  
+   * @returns A boolean indicating whether the participant has contributed in that round  
+   */
+  getHasContributed(
+    circleAddress: Hash,
+    roundIndex: bigint,
+    participant: string
+  ): Promise<boolean>;
+
 }

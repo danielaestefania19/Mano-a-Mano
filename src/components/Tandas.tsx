@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSavingsCircles } from "../hooks/useSavingsCircleFactory";
+import { useSavingsCirclesFactory } from "../hooks/useSavingsCircleFactory";
 import NewTandaModal from "./NewTandaModal";
 import { getEthToUsdtRate } from "../services/ethPriceService";
 import { useNavigate } from "react-router-dom";
 import { useChainId } from "wagmi";
 import arbitrum_icon from "../assets/arbitrum_icon.png";
 import scroll_icon from "../assets/scroll_icon.png";
-import { arbitrumSepolia } from "@reown/appkit/networks";
+import etherum_icon from "../assets/etherum_icon.png";
+import { arbitrumSepolia, scrollSepolia, mainnet } from "@reown/appkit/networks";
 import EnsOrAddress from "./EnsOrAddress";
 
 export default function Tandas() {
@@ -17,17 +18,22 @@ export default function Tandas() {
     loading,
     error,
     refetch,
-  } = useSavingsCircles();
+  } = useSavingsCirclesFactory();
   const navigate = useNavigate();
   const chainId = useChainId();
-
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ethToUsdt, setEthToUsdt] = useState<number>(0);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   const networkLogo =
-    chainId === arbitrumSepolia.id ? arbitrum_icon : scroll_icon;
+    chainId === arbitrumSepolia.id
+      ? arbitrum_icon
+      : chainId === scrollSepolia.id
+      ? scroll_icon
+      : chainId === mainnet.id
+      ? etherum_icon
+      : "";
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -161,10 +167,11 @@ export default function Tandas() {
                     <th className="p-3 font-semibold">Nombre</th>
                     <th className="p-3 font-semibold">Periodo total</th>
                     <th className="p-3 font-semibold">Plazo (por ronda)</th>
-                    <th className="p-3 font-semibold">Monto total</th>
+                    <th className="p-3 font-semibold">Monto total a recibir</th>
                     <th className="p-3 font-semibold">Pago por ronda</th>
                     <th className="p-3 font-semibold">Personas</th>
                     <th className="p-3 font-semibold">Anfitrión</th>
+                    <th className="p-3 font-semibold">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -181,8 +188,8 @@ export default function Tandas() {
                     myCircles.map((item) => {
                       const totalETH =
                         (Number(item.contributionAmount) / 1e18) *
-                        item.maxParticipants;
-                      const totalEthBig = BigInt(totalETH * 1e18);
+                        (item.maxParticipants - 1);
+                      const totalEthBig = BigInt(Math.floor(totalETH * 1e18));
                       const plazo = formatDuration(item.roundDuration);
                       const totalPeriodo = getTotalDuration(
                         item.roundDuration,
@@ -231,6 +238,16 @@ export default function Tandas() {
                               address={item.owner as `0x${string}`}
                             />
                           </td>
+                          <td className="p-3">
+                            <button
+                              onClick={() =>
+                                navigate(`/circles/${item.address}`)
+                              }
+                              className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition"
+                            >
+                              Ver
+                            </button>
+                          </td>
                         </tr>
                       );
                     })
@@ -252,7 +269,7 @@ export default function Tandas() {
                     <th className="p-3 font-semibold">Nombre</th>
                     <th className="p-3 font-semibold">Periodo total</th>
                     <th className="p-3 font-semibold">Plazo (por ronda)</th>
-                    <th className="p-3 font-semibold">Monto total</th>
+                    <th className="p-3 font-semibold">Monto total a recibir</th>
                     <th className="p-3 font-semibold">Pago por ronda</th>
                     <th className="p-3 font-semibold">Lugares</th>
                     <th className="p-3 font-semibold">Creada por</th>
@@ -273,8 +290,8 @@ export default function Tandas() {
                     publicCircles.map((item) => {
                       const totalETH =
                         (Number(item.contributionAmount) / 1e18) *
-                        item.maxParticipants;
-                      const totalEthBig = BigInt(totalETH * 1e18);
+                        (item.maxParticipants - 1);
+                      const totalEthBig = BigInt(Math.floor(totalETH * 1e18));
                       const plazo = formatDuration(item.roundDuration);
                       const totalPeriodo = getTotalDuration(
                         item.roundDuration,
@@ -326,10 +343,12 @@ export default function Tandas() {
 
                           <td className="p-3">
                             <button
-                              onClick={() => navigate(`/tanda/${item.address}`)}
+                              onClick={() =>
+                                navigate(`/circles/${item.address}`)
+                              }
                               className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition"
                             >
-                              Unirme
+                              Ver
                             </button>
                           </td>
                         </tr>

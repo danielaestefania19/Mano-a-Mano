@@ -8,7 +8,7 @@ import { type Hash } from "viem";
  * 🎯 Custom hook for loading, creating, and managing SavingsCircles dynamically
  * depending on the user's connected network.
  */
-export function useSavingsCircles() {
+export function useSavingsCirclesFactory() {
   const { address } = useAccount();
   const chainId = useChainId();
 
@@ -29,6 +29,7 @@ export function useSavingsCircles() {
     const chainMap: Record<number, SupportedNetwork> = {
       421614: "arbitrumSepolia",
       534351: "scrollSepolia",
+      1: "etherumMainnet",
     };
 
     setNetwork(chainMap[chainId] ?? null);

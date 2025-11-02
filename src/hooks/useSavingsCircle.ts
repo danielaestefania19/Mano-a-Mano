@@ -60,7 +60,7 @@ export function useSavingsCircle(circleAddress: Hash) {
    * 🧍‍♀️ Joins the SavingsCircle by depositing the insurance amount.
    */
   const joinCircle = useCallback(
-    async (name: string) => {
+    async (insuranceDeposit: bigint) => {
       if (!circleAddress) return;
       if (!userAddress) {
         setError("Conecta tu billetera antes de unirte a una tanda.");
@@ -71,7 +71,7 @@ export function useSavingsCircle(circleAddress: Hash) {
       setError(null);
 
       try {
-        const hash = await savingsCircleService.joinCircle(circleAddress, name);
+        const hash = await savingsCircleService.joinCircle(circleAddress, insuranceDeposit);
         setTxHash(hash);
         await fetchParticipants();
         return hash;

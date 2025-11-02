@@ -14,7 +14,7 @@ import "./SavingsCircleFactory.sol";
  *      - Participants self-manage all deposits and rounds.
  *      - No admin intervention is required at any point.
  *      - Includes an internal insurance pool for protection against default.
- *xx
+ *
  * Core mechanics:
  * - Each participant deposits an insurance collateral when joining.
  * - The tanda starts automatically when all participants have joined.
@@ -63,7 +63,6 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      */
     struct Participant {
         address wallet;
-        string name;
     }
 
     /**
@@ -128,7 +127,7 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
     /**
      * @notice Emitted when a new participant successfully joins the circle.
      */
-    event ParticipantJoined(address indexed participant, string name);
+    event ParticipantJoined(address indexed participant);
 
     /**
      * @notice Emitted when a new round starts.
@@ -148,7 +147,11 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
     /**
      * @notice Emitted when the collected funds are released to the beneficiary.
      */
-    event FundsReleased(uint256 indexed index, address indexed beneficiary, uint256 amount);
+    event FundsReleased(
+        uint256 indexed index,
+        address indexed beneficiary,
+        uint256 amount
+    );
 
     /**
      * @notice Emitted when all funds are refunded due to failure.
@@ -173,7 +176,11 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
     /**
      * @notice Emitted when a participant defaults (fails to pay and their insurance is used).
      */
-    event ParticipantDefaulted(address indexed user, uint256 indexed roundIndex, uint256 amountUsed);
+    event ParticipantDefaulted(
+        address indexed user,
+        uint256 indexed roundIndex,
+        uint256 amountUsed
+    );
 
     /**
      * @notice Initializes a new `SavingsCircle` instance.
@@ -199,7 +206,10 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
         require(_contributionAmount > 0, "Invalid contribution");
         require(_maxParticipants >= 2, "At least two participants");
         require(_roundDuration > 0, "Invalid duration");
-        require(_insuranceDeposit == _contributionAmount, "Insurance must equal contribution");
+        require(
+            _insuranceDeposit == _contributionAmount,
+            "Insurance must equal contribution"
+        );
 
         name = _name;
         image = _image;
@@ -213,24 +223,22 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
 
     /**
      * @notice Allows users to join the circle by depositing the required insurance collateral.
-     * @param _name The display name to associate with the participant.
      *
      * Emits a {ParticipantJoined} event.
      */
-    function joinCircle(string calldata _name) external payable nonReentrant {
+    function joinCircle() external payable nonReentrant {
         require(!isParticipant[msg.sender], "Already joined");
         require(!circleCancelled, "Circle cancelled");
         require(participants.length < totalParticipants, "Circle full");
-        require(bytes(_name).length > 0, "Name required");
         require(msg.value == insuranceDeposit, "Insurance deposit required");
 
-        participants.push(Participant({wallet: msg.sender, name: _name}));
+        participants.push(Participant({wallet: msg.sender}));
         isParticipant[msg.sender] = true;
         insuranceBalance[msg.sender] = msg.value;
         wasCompliant[msg.sender] = true;
 
         SavingsCircleFactory(factory).registerParticipation(msg.sender);
-        emit ParticipantJoined(msg.sender, _name);
+        emit ParticipantJoined(msg.sender);
 
         if (participants.length == totalParticipants && rounds.length == 0) {
             address firstBeneficiary = _selectRandomBeneficiary();
@@ -246,7 +254,12 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
             });
 
             rounds.push(firstRound);
-            emit RoundCreated(firstRound.index, firstBeneficiary, firstRound.startTime, firstRound.endTime);
+            emit RoundCreated(
+                firstRound.index,
+                firstBeneficiary,
+                firstRound.startTime,
+                firstRound.endTime
+            );
         }
     }
 
@@ -269,14 +282,20 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
         require(rounds.length > 0, "No active round");
 
         Round storage round = rounds[currentRound];
-        if (block.timestamp > round.endTime && round.status == RoundStatus.Active) {
+        if (
+            block.timestamp > round.endTime &&
+            round.status == RoundStatus.Active
+        ) {
             _handleExpiredRound();
             revert("Round expired - refund triggered");
         }
 
         require(round.status == RoundStatus.Active, "Round not active");
         require(isParticipant[msg.sender], "Not a participant");
-        require(!hasContributed[currentRound][msg.sender], "Already contributed");
+        require(
+            !hasContributed[currentRound][msg.sender],
+            "Already contributed"
+        );
         require(msg.value == contributionAmount, "Incorrect amount");
 
         round.totalCollected += msg.value;
@@ -284,7 +303,10 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
 
         emit ContributionReceived(msg.sender, msg.value);
 
-        if (round.totalCollected >= contributionAmount * participants.length) {
+        if (
+            round.totalCollected >=
+            contributionAmount * (participants.length - 1)
+        ) {
             _releaseFunds(currentRound);
         }
     }
@@ -295,7 +317,7 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      *
      * Emits a {FundsReleased} event.
      */
-    function _releaseFunds(uint256 _roundIndex) internal nonReentrant {
+    function _releaseFunds(uint256 _roundIndex) internal {
         Round storage round = rounds[_roundIndex];
         require(round.status == RoundStatus.Active, "Round not active");
 
@@ -322,7 +344,10 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      *
      * Emits a {RoundCreated} event.
      */
-    function _autoStartNextRound(address _beneficiary, uint256 previousEndTime) internal {
+    function _autoStartNextRound(
+        address _beneficiary,
+        uint256 previousEndTime
+    ) internal {
         Round memory next = Round({
             index: rounds.length,
             totalCollected: 0,
@@ -334,7 +359,12 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
 
         hasReceived[_beneficiary] = true;
         rounds.push(next);
-        emit RoundCreated(next.index, _beneficiary, next.startTime, next.endTime);
+        emit RoundCreated(
+            next.index,
+            _beneficiary,
+            next.startTime,
+            next.endTime
+        );
     }
 
     /**
@@ -343,7 +373,7 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      *
      * Emits {InsuranceUsed}, {ParticipantDefaulted}, {RefundIssued}, and {CircleCancelled}.
      */
-    function _handleExpiredRound() internal nonReentrant {
+    function _handleExpiredRound() internal {
         Round storage round = rounds[currentRound];
         if (round.status != RoundStatus.Active) return;
 
@@ -356,7 +386,11 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
                     insuranceBalance[user] -= contributionAmount;
                     round.totalCollected += contributionAmount;
                     emit InsuranceUsed(currentRound, contributionAmount);
-                    emit ParticipantDefaulted(user, currentRound, contributionAmount);
+                    emit ParticipantDefaulted(
+                        user,
+                        currentRound,
+                        contributionAmount
+                    );
                     wasCompliant[user] = false;
                 } else {
                     missingTotal += contributionAmount;
@@ -385,7 +419,7 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      *
      * Emits {InsuranceRefunded} for each participant.
      */
-    function _refundInsurance() internal nonReentrant {
+    function _refundInsurance() internal {
         for (uint256 i = 0; i < participants.length; i++) {
             address payable user = payable(participants[i].wallet);
             if (insuranceBalance[user] > 0 && wasCompliant[user]) {
@@ -398,17 +432,16 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Checks whether Upkeep should trigger (e.g., a round expired).
+     * @notice Checks whether Chainlink Upkeep should trigger (e.g., a round expired).
      * @dev Returns true only if the active round has passed its end time.
      */
-    function checkUpkeep(bytes calldata)
-        external
-        view
-        returns (bool upkeepNeeded, bytes memory)
-    {
+    function checkUpkeep(
+        bytes calldata
+    ) external view returns (bool upkeepNeeded, bytes memory) {
         if (rounds.length == 0 || circleCancelled) return (false, "");
         Round storage round = rounds[currentRound];
-        bool isExpired = (round.status == RoundStatus.Active && block.timestamp > round.endTime);
+        bool isExpired = (round.status == RoundStatus.Active &&
+            block.timestamp > round.endTime);
         return (isExpired, "");
     }
 
@@ -418,7 +451,10 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      */
     function performUpkeep(bytes calldata) external {
         Round storage round = rounds[currentRound];
-        if (round.status == RoundStatus.Active && block.timestamp > round.endTime) {
+        if (
+            round.status == RoundStatus.Active &&
+            block.timestamp > round.endTime
+        ) {
             _handleExpiredRound();
         }
     }
@@ -429,11 +465,18 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      */
     function _selectRandomBeneficiary() internal view returns (address) {
         uint256 rand = uint256(
-            keccak256(abi.encodePacked(block.timestamp, block.prevrandao, rounds.length))
+            keccak256(
+                abi.encodePacked(
+                    block.timestamp,
+                    block.prevrandao,
+                    rounds.length
+                )
+            )
         ) % participants.length;
 
         for (uint256 i = 0; i < participants.length; i++) {
-            address candidate = participants[(rand + i) % participants.length].wallet;
+            address candidate = participants[(rand + i) % participants.length]
+                .wallet;
             if (!hasReceived[candidate]) return candidate;
         }
         revert("No eligible beneficiary left");
@@ -443,7 +486,11 @@ contract SavingsCircle is Ownable, ReentrancyGuard {
      * @notice Returns all rounds in a simplified schedule format for frontend display.
      * @return schedule An array of all round details.
      */
-    function getSchedule() external view returns (RoundSchedule[] memory schedule) {
+    function getSchedule()
+        external
+        view
+        returns (RoundSchedule[] memory schedule)
+    {
         schedule = new RoundSchedule[](rounds.length);
         for (uint256 i = 0; i < rounds.length; i++) {
             schedule[i] = RoundSchedule({

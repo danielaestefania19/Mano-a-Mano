@@ -5,7 +5,6 @@ import { type SavingsCircleInterface } from "../interfaces/SavingsCircleInterfac
 import { type Participant, type Round } from "../types/types";
 import SavingsCircleArtifact from "../contracts/abi/SavingsCircle.json";
 
-
 /**
  * 🏦 Concrete implementation of the SavingsCircleInterface.
  * Handles all blockchain interactions for an individual SavingsCircle contract.
@@ -19,32 +18,35 @@ export class SavingsCircleService implements SavingsCircleInterface {
 
   /**
    * 🧍‍♀️ Allows a user to join a SavingsCircle by sending the insurance deposit.
+   * @param circleAddress - The address of the SavingsCircle contract to join
+   * @param insuranceDeposit - The insurance deposit amount required to join
    */
   async joinCircle(
     circleAddress: Hash,
-    name: string
+    insuranceDeposit: bigint
   ): Promise<Hash> {
     try {
       const txHash = await writeContract(config, {
         abi: this.savingsCircleAbi,
         address: circleAddress,
         functionName: "joinCircle",
-        args: [name],
+        args: [],
+        value: insuranceDeposit,
       });
 
       return txHash;
     } catch (error) {
       console.error(`❌ Error joining circle ${circleAddress}:`, error);
-      throw new Error("Fallo al unirse a la tanda. Verifica tu depósito y red.");
+      throw new Error(
+        "Fallo al unirse a la tanda. Verifica tu depósito y red."
+      );
     }
   }
 
   /**
    * 📋 Retrieves all participants in the SavingsCircle.
    */
-  async getParticipants(
-    circleAddress: Hash
-  ): Promise<Participant[]> {
+  async getParticipants(circleAddress: Hash): Promise<Participant[]> {
     try {
       const participants = await readContract(config, {
         abi: this.savingsCircleAbi,
@@ -52,9 +54,12 @@ export class SavingsCircleService implements SavingsCircleInterface {
         functionName: "getParticipants",
       });
 
-       return participants as Participant[];
+      return participants as Participant[];
     } catch (error) {
-      console.error(`❌ Error fetching participants for ${circleAddress}:`, error);
+      console.error(
+        `❌ Error fetching participants for ${circleAddress}:`,
+        error
+      );
       throw new Error("Fallo al obtener los participantes de la tanda.");
     }
   }
@@ -62,8 +67,7 @@ export class SavingsCircleService implements SavingsCircleInterface {
   /**
    * 🔁 Fetches information about the current round.
    */
-async getCurrentRound(circleAddress: Hash): Promise<Round> {
-  try {
+  async getCurrentRound(circleAddress: Hash): Promise<Round> {
     const currentIndex = await readContract(config, {
       abi: this.savingsCircleAbi,
       address: circleAddress,
@@ -77,6 +81,7 @@ async getCurrentRound(circleAddress: Hash): Promise<Round> {
       args: [currentIndex],
     });
 
+
     const [index, totalCollected, beneficiary, status, startTime, endTime] =
       round as [bigint, bigint, string, number, bigint, bigint];
 
@@ -88,28 +93,12 @@ async getCurrentRound(circleAddress: Hash): Promise<Round> {
       startTime,
       endTime,
     };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error: unknown) {
-    console.warn(`⚠️ No hay ronda activa en ${circleAddress}, devolviendo valores vacíos`);
-    return {
-      index: 0n,
-      totalCollected: 0n,
-      beneficiary: "0x0000000000000000000000000000000000000000" as Hash,
-      status: 0,
-      startTime: 0n,
-      endTime: 0n,
-    };
   }
-}
-
 
   /**
    * 💰 Allows a participant to contribute the required amount to the active round.
    */
-  async contribute(
-    circleAddress: Hash,
-    amount: bigint
-  ): Promise<Hash> {
+  async contribute(circleAddress: Hash, amount: bigint): Promise<Hash> {
     try {
       const txHash = await writeContract(config, {
         abi: this.savingsCircleAbi,
@@ -122,6 +111,32 @@ async getCurrentRound(circleAddress: Hash): Promise<Round> {
     } catch (error) {
       console.error(`❌ Error contributing to circle ${circleAddress}:`, error);
       throw new Error("Fallo al contribuir en la tanda.");
+    }
+  }
+
+
+  /**
+   * 🧾 Checks if a participant has contributed in a specific round.
+   */
+  async getHasContributed(
+    circleAddress: Hash,
+    roundIndex: bigint,
+    participant: string
+  ): Promise<boolean> {
+    try {
+      const result = await readContract(config, {
+        abi: this.savingsCircleAbi,
+        address: circleAddress,
+        functionName: "hasContributed",
+        args: [roundIndex, participant],
+      });
+      return Boolean(result);
+    } catch (error) {
+      console.error(
+        `⚠️ Error checking contribution for ${participant} in ${circleAddress}:`,
+        error
+      );
+      return false;
     }
   }
 }
