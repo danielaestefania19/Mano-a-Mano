@@ -4,6 +4,7 @@ import type { AppKitNetwork } from '@reown/appkit/networks'
 
 export const projectId = "1d089db2baa74b6f4d8ce33d7ea5571f"
 
+console.log("PROJECT ID:", projectId)
 export const metadata = {
     name: 'AppKit',
     description: 'AppKit Example',
