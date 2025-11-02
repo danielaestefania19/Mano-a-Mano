@@ -18,7 +18,14 @@ export default function Tandas() {
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    refetch();
+  }
+
+
+  console.log(allCircles)
+
 
   // 🔹 Obtener el precio actual de ETH en MXN
   useEffect(() => {
