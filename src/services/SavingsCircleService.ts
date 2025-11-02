@@ -62,39 +62,46 @@ export class SavingsCircleService implements SavingsCircleInterface {
   /**
    * 🔁 Fetches information about the current round.
    */
-  async getCurrentRound(
-    circleAddress: Hash
-  ): Promise<Round> {
-    try {
-      const currentIndex = await readContract(config, {
-        abi: this.savingsCircleAbi,
-        address: circleAddress,
-        functionName: "currentRound",
-      });
+async getCurrentRound(circleAddress: Hash): Promise<Round> {
+  try {
+    const currentIndex = await readContract(config, {
+      abi: this.savingsCircleAbi,
+      address: circleAddress,
+      functionName: "currentRound",
+    });
 
-      const round = await readContract(config, {
-        abi: this.savingsCircleAbi,
-        address: circleAddress,
-        functionName: "rounds",
-        args: [currentIndex],
-      });
+    const round = await readContract(config, {
+      abi: this.savingsCircleAbi,
+      address: circleAddress,
+      functionName: "rounds",
+      args: [currentIndex],
+    });
 
-      const [index, totalCollected, beneficiary, status, startTime, endTime] =
-        round as [bigint, bigint, string, number, bigint, bigint];
+    const [index, totalCollected, beneficiary, status, startTime, endTime] =
+      round as [bigint, bigint, string, number, bigint, bigint];
 
-      return {
-        index,
-        totalCollected,
-        beneficiary: beneficiary as Hash,
-        status,
-        startTime,
-        endTime,
-      };
-    } catch (error) {
-      console.error(`❌ Error fetching current round for ${circleAddress}:`, error);
-      throw new Error("Fallo al obtener la ronda actual.");
-    }
+    return {
+      index,
+      totalCollected,
+      beneficiary: beneficiary as Hash,
+      status,
+      startTime,
+      endTime,
+    };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error: unknown) {
+    console.warn(`⚠️ No hay ronda activa en ${circleAddress}, devolviendo valores vacíos`);
+    return {
+      index: 0n,
+      totalCollected: 0n,
+      beneficiary: "0x0000000000000000000000000000000000000000" as Hash,
+      status: 0,
+      startTime: 0n,
+      endTime: 0n,
+    };
   }
+}
+
 
   /**
    * 💰 Allows a participant to contribute the required amount to the active round.

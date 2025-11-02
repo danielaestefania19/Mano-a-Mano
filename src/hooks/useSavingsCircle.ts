@@ -46,7 +46,8 @@ export function useSavingsCircle(circleAddress: Hash) {
 
     try {
       const round = await savingsCircleService.getCurrentRound(circleAddress);
-      setCurrentRound(round);
+      if (round) setCurrentRound(round);
+      else setCurrentRound(null);
     } catch (err: unknown) {
       console.error("❌ Error loading current round:", err);
       setError(err instanceof Error ? err.message : "Fallo al obtener la ronda actual.");
@@ -91,7 +92,7 @@ export function useSavingsCircle(circleAddress: Hash) {
   const contribute = useCallback(
     async (amount: bigint) => {
       if (!circleAddress) return;
-         if (!userAddress) {
+      if (!userAddress) {
         setError("Conecta tu billetera antes de unirte a una tanda.");
         return;
       }

@@ -13,7 +13,8 @@ export default function Tandas() {
     error,
     refetch,
   } = useSavingsCircles();
-  const navigate = useNavigate();
+
+const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ethToMxn, setEthToMxn] = useState<number>(0);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
