@@ -1,9 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, usePublicClient } from "wagmi";
+import { watchContractEvent } from "viem/actions";
 import { savingsCircleFactoryService } from "../services/SavingsCircleFactoryService";
 import { type SupportedNetwork } from "../config/contracts";
 import { type Circle, type CreateCircleParams } from "../types/types";
 import { type Hash } from "viem";
+import { CONTRACT_ADDRESSES } from "../config/contracts";
+import SavingsCircleFactoryArtifact from "../contracts/abi/SavingsCircleFactory.json";
 
 /**
  * 🎯 Custom hook for loading, creating, and managing SavingsCircles dynamically
@@ -12,6 +15,7 @@ import { type Hash } from "viem";
 export function useSavingsCircles() {
   const { address } = useAccount();
   const chainId = useChainId();
+  const publicClient = usePublicClient();
 
   const [network, setNetwork] = useState<SupportedNetwork | null>(null);
   const [allCircles, setAllCircles] = useState<Circle[]>([]);
@@ -21,9 +25,7 @@ export function useSavingsCircles() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * 🌐 Detect current network based on chainId from wagmi.
-   */
+  // 🌐 Detect current network from chainId
   useEffect(() => {
     if (!chainId) {
       setNetwork(null);
@@ -38,9 +40,7 @@ export function useSavingsCircles() {
     setNetwork(chainMap[chainId] ?? null);
   }, [chainId]);
 
-  /**
-   * 🔄 Loads all circle addresses and user-related circles.
-   */
+  // 🔄 Loads all circle addresses and user-related circles
   const fetchCircles = useCallback(async () => {
     if (!network) return;
     setLoading(true);
@@ -54,7 +54,9 @@ export function useSavingsCircles() {
 
       setTotalCircles(total);
       const allCircleInfos = await Promise.all(
-        (all as Hash[]).map((addr) => savingsCircleFactoryService.getCircleInfo(addr))
+        (all as Hash[]).map((addr) =>
+          savingsCircleFactoryService.getCircleInfo(addr)
+        )
       );
       setAllCircles(allCircleInfos);
 
@@ -71,10 +73,14 @@ export function useSavingsCircles() {
         ]);
 
         const createdInfos = await Promise.all(
-          (created as Hash[]).map((addr) => savingsCircleFactoryService.getCircleInfo(addr))
+          (created as Hash[]).map((addr) =>
+            savingsCircleFactoryService.getCircleInfo(addr)
+          )
         );
         const participantInfos = await Promise.all(
-          (participated as Hash[]).map((addr) => savingsCircleFactoryService.getCircleInfo(addr))
+          (participated as Hash[]).map((addr) =>
+            savingsCircleFactoryService.getCircleInfo(addr)
+          )
         );
 
         setCreatedCircles(createdInfos);
@@ -98,13 +104,11 @@ export function useSavingsCircles() {
     if (network) void fetchCircles();
   }, [network, fetchCircles]);
 
-  /**
-   * ➕ Creates a new SavingsCircle (tanda) and refreshes the state.
-   */
+  // ➕ Creates a new SavingsCircle (tanda)
   const addCircle = useCallback(
     async (params: CreateCircleParams): Promise<Hash | null> => {
       if (!network) {
-        setError("⚠️ Red no soportada o no seleccionada.");
+        setError("Red no soportada o no seleccionada.");
         return null;
       }
 
@@ -116,7 +120,7 @@ export function useSavingsCircles() {
           network,
           params
         );
-        
+
         await fetchCircles();
         return txHash;
       } catch (err: unknown) {
@@ -135,6 +139,26 @@ export function useSavingsCircles() {
     },
     [network, fetchCircles]
   );
+
+  useEffect(() => {
+    if (!network || !publicClient) return;
+
+    const factoryAddress = CONTRACT_ADDRESSES[network] as unknown as `0x${string}`;
+    if (!factoryAddress) return;
+
+    const unwatch = watchContractEvent(publicClient, {
+      address: factoryAddress,
+      abi: SavingsCircleFactoryArtifact.abi,
+      eventName: "CircleCreated",
+      onLogs: async () => {
+        await fetchCircles();
+      },
+    });
+
+    return () => {
+      unwatch?.();
+    };
+  }, [network, publicClient, fetchCircles]);
 
   return {
     network,

@@ -20,7 +20,14 @@ const navigate = useNavigate()
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    refetch();
+  }
+
+
+  console.log(allCircles)
+
 
   console.log(allCircles)
 
