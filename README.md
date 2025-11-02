@@ -3,10 +3,10 @@
 **Mano a Mano** es una aplicación descentralizada (dApp) que lleva el tradicional sistema de **tandas o círculos de ahorro** al mundo **Web3**, usando **blockchain (Arbitrum & Scroll)** para garantizar transparencia, seguridad y confianza entre los participantes.
 
 Los usuarios pueden:
-- 💰 Crear tandas personalizadas con montos, duración y número de participantes.
-- 👥 Unirse a tandas existentes mientras haya lugares disponibles.
-- 🔁 Contribuir a las rondas de ahorro y recibir sus fondos cuando sea su turno.
-- 🔒 Operar todo directamente desde su billetera Web3 (Metamask, WalletConnect, etc.).
+- 💰 Crear tandas personalizadas con montos, duración y número de participantes.  
+- 👥 Unirse a tandas existentes mientras haya lugares disponibles.  
+- 🔁 Contribuir a las rondas de ahorro y recibir sus fondos cuando sea su turno.  
+- 🔒 Operar todo directamente desde su billetera Web3 (Metamask, WalletConnect, etc.).  
 
 ---
 
@@ -82,16 +82,94 @@ Los usuarios pueden:
 ```bash
 git clone https://github.com/tuusuario/mano-a-mano.git
 cd mano-a-mano
+```
 
-## ⚙️ Instalación y configuración
+### ⚙️ Instalación y configuración
 
+```bash
 npm install
-npm run dev 
+npm run dev
+```
 
+---
 
 ## 🔐 Variables de entorno (.env)
 
 Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
 
+```bash
 VITE_PROJECT_ID="tu_project_id_de_reown"
 VITE_PINATA_JWT="tu_token_jwt_de_pinata"
+```
+
+---
+
+## 🌐 Despliegue y Contratos Inteligentes
+
+### 🔗 Enlace a Producción
+
+La aplicación descentralizada de **Mano a Mano** está disponible públicamente en:
+
+👉 **[https://mano-a-manodapp-production.up.railway.app/circles](https://mano-a-manodapp-production.up.railway.app/circles)**
+
+En esta versión los usuarios pueden:
+- Crear y unirse a tandas activas.  
+- Conectarse con su billetera Web3 (Metamask, WalletConnect, etc.).  
+- Visualizar el progreso de las rondas y el historial de aportaciones en tiempo real.
+
+---
+
+### 📜 Contratos Inteligentes
+
+Los **smart contracts** que gestionan la lógica de las tandas están desplegados en las siguientes redes compatibles con EVM.  
+Cada contrato **Factory** permite la creación y administración de tandas descentralizadas, seguras y verificables en blockchain.
+
+| Red | Dirección del contrato `Factory` | Explorador |
+|------|----------------------------------|-------------|
+| **Arbitrum Sepolia** | `0xD4e4Ea2A6373Bc86A23a51CCB622C1D58fe2Aa29` | [Arbiscan](https://sepolia.arbiscan.io/address/0xD4e4Ea2A6373Bc86A23a51CCB622C1D58fe2Aa29) |
+| **Scroll Sepolia** | `0xdfe2F90fe244Ebdc87A7C60F63c90259896e0a89` | [Scrollscan](https://sepolia.scrollscan.dev/address/0xdfe2F90fe244Ebdc87A7C60F63c90259896e0a89) |
+| **Ethereum Mainnet** | `0x721cC1f4dF6F89d05cF441192db2598aeED0a98b` | [Etherscan](https://etherscan.io/address/0x721cC1f4dF6F89d05cF441192db2598aeED0a98b) |
+
+---
+
+### 🧩 Código fuente de contratos
+
+```ts
+import { type Hash } from "viem"
+
+export interface NetworkContracts {
+  factory: Hash
+}
+
+export const CONTRACT_ADDRESSES: Record<
+  'arbitrumSepolia' | 'scrollSepolia' | 'etherumMainnet',
+  NetworkContracts
+> = {
+  arbitrumSepolia: {
+    factory: '0xD4e4Ea2A6373Bc86A23a51CCB622C1D58fe2Aa29',
+  },
+  scrollSepolia: {
+    factory: '0xdfe2F90fe244Ebdc87A7C60F63c90259896e0a89',
+  },
+  etherumMainnet: {
+    factory: '0x721cC1f4dF6F89d05cF441192db2598aeED0a98b',
+  },
+} as const
+
+export type SupportedNetwork = keyof typeof CONTRACT_ADDRESSES
+```
+
+---
+
+### ✅ Verificación de Contratos
+
+```bash
+npx hardhat verify --network arbitrumSepolia 0xD4e4Ea2A6373Bc86A23a51CCB622C1D58fe2Aa29
+npx hardhat verify --network scrollSepolia 0xdfe2F90fe244Ebdc87A7C60F63c90259896e0a89
+npx hardhat verify --network mainnet 0x721cC1f4dF6F89d05cF441192db2598aeED0a98b
+```
+
+---
+
+### 🧠 Créditos
+Contribuciones, PRs y sugerencias son bienvenidas.  
