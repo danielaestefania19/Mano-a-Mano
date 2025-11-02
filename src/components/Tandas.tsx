@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSavingsCircles } from "../hooks/useSavingsCircleFactory";
 import NewTandaModal from "./NewTandaModal";
 import { getEthToMxnRate } from "../services/ethPriceService";
+import { useNavigate } from "react-router-dom";
 
 export default function Tandas() {
   const {
@@ -12,7 +13,7 @@ export default function Tandas() {
     error,
     refetch,
   } = useSavingsCircles();
-
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ethToMxn, setEthToMxn] = useState<number>(0);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
@@ -26,6 +27,8 @@ export default function Tandas() {
 
   console.log(allCircles)
 
+
+  console.log(allCircles)
 
   // 🔹 Obtener el precio actual de ETH en MXN
   useEffect(() => {
@@ -49,9 +52,22 @@ export default function Tandas() {
     return allCircles.filter((c) => !myAddresses.has(c.address));
   }, [allCircles, myCircles]);
 
-  // 🔹 Formato de duración (en segundos → texto legible)
+  // 🔹 Conversión ETH → MXN
+  const formatToMXN = (ethAmount: bigint): string => {
+    const ethValue = Number(ethAmount) / 1e18;
+    const mxnValue = ethValue * ethToMxn;
+    return `$${mxnValue.toLocaleString("es-MX", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} MXN`;
+  };
+
+  // 🔹 Convertir duración (en segundos o milisegundos) a texto legible
   const formatDuration = (duration: bigint): string => {
-    const days = Number(duration) / 86400;
+    const seconds =
+      Number(duration) > 1e12 ? Number(duration) / 1000 : Number(duration);
+    const days = seconds / 86400;
+
     if (days < 7) return `${Math.round(days)} día${days > 1 ? "s" : ""}`;
     if (days < 14) return "1 semana";
     if (days < 28) return `${Math.round(days / 7)} semanas`;
@@ -62,29 +78,18 @@ export default function Tandas() {
     return "1 año o más";
   };
 
-  // 🔹 Duración total = duración por ronda × número de participantes
-  const getTotalDuration = (roundDuration: bigint, participants: number) => {
-    const totalSeconds = Number(roundDuration) * participants;
-    return formatDuration(BigInt(totalSeconds));
-  };
-
-  // 🔹 ETH → MXN (con precisión y conversión clara)
-  const formatAmount = (wei: bigint) => {
-    const ethValue = Number(wei) / 1e18;
-    const mxnValue = ethValue * ethToMxn;
-
-    return {
-      eth: `${ethValue.toFixed(6)} ETH`,
-      mxn: `$${mxnValue.toLocaleString("es-MX", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })} MXN`,
-    };
-  };
-
   // 🔹 Imagen loader
   const handleImageLoad = (key: string) =>
     setLoadedImages((prev) => ({ ...prev, [key]: true }));
+
+  // 🔹 Calcular duración total
+  const getTotalDuration = (roundDuration: bigint, participants: number) => {
+    const totalSeconds =
+      (Number(roundDuration) > 1e12
+        ? Number(roundDuration) / 1000
+        : Number(roundDuration)) * participants;
+    return formatDuration(BigInt(totalSeconds * 1000)); // reconvertimos para el formato
+  };
 
   return (
     <div className="flex-1 p-10 bg-gray-50 min-h-screen text-gray-800">
@@ -104,6 +109,9 @@ export default function Tandas() {
           >
             Crear nueva tanda
           </button>
+          <div className="mt-auto">
+            <appkit-button />
+          </div>
         </div>
       </div>
 
@@ -122,6 +130,7 @@ export default function Tandas() {
           {/* 🟣 MIS TANDAS */}
           <section className="mb-10 bg-white rounded-xl shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Mis tandas activas</h2>
+
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -147,12 +156,10 @@ export default function Tandas() {
                       const totalETH =
                         (Number(item.contributionAmount) / 1e18) *
                         item.maxParticipants;
-                      const pago = formatAmount(item.contributionAmount);
-                      const total = formatAmount(
-                        BigInt(totalETH * 1e18)
-                      );
+                      const pagoRondaMXN = formatToMXN(item.contributionAmount);
+                      const totalMXN = formatToMXN(BigInt(totalETH * 1e18));
                       const plazo = formatDuration(item.roundDuration);
-                      const periodo = getTotalDuration(
+                      const totalPeriodo = getTotalDuration(
                         item.roundDuration,
                         item.maxParticipants
                       );
@@ -174,42 +181,39 @@ export default function Tandas() {
                                 alt={item.name}
                                 onLoad={() => handleImageLoad(item.address)}
                                 onError={() => handleImageLoad(item.address)}
-                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${
-                                  loadedImages[item.address]
+                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${loadedImages[item.address]
                                     ? "opacity-100"
                                     : "opacity-0"
-                                }`}
+                                  }`}
                               />
                             </div>
                             <span className="font-medium">{item.name}</span>
                           </td>
-                          <td className="p-3 text-gray-600">{periodo}</td>
+                          <td className="p-3 text-gray-600">{totalPeriodo}</td>
                           <td className="p-3 text-gray-600">{plazo}</td>
-                          <td className="p-3 font-medium">
-                            {total.mxn}
-                            <br />
-                            <span className="text-xs text-gray-500">
-                              {total.eth}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            {pago.mxn}
-                            <br />
-                            <span className="text-xs text-gray-500">
-                              {pago.eth}
-                            </span>
-                          </td>
+                          <td className="p-3 font-medium">{totalMXN}</td>
+                          <td className="p-3 text-gray-600">{pagoRondaMXN}</td>
                           <td className="p-3">
                             <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded-full text-xs font-semibold">
                               {item.maxParticipants}
                             </span>
                           </td>
                           <td className="p-3 flex items-center gap-2">
-                            <img
-                              src={`https://i.pravatar.cc/100?u=${item.owner}`}
-                              alt="owner"
-                              className="w-8 h-8 rounded-full object-cover"
-                            />
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                              {!loadedImages[item.owner] && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
+                              )}
+                              <img
+                                src={`https://i.pravatar.cc/100?u=${item.owner}`}
+                                alt="owner"
+                                onLoad={() => handleImageLoad(item.owner)}
+                                onError={() => handleImageLoad(item.owner)}
+                                className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${loadedImages[item.owner]
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                  }`}
+                              />
+                            </div>
                             <span className="text-sm text-gray-700">
                               {item.owner.slice(0, 6)}...{item.owner.slice(-4)}
                             </span>
@@ -228,6 +232,7 @@ export default function Tandas() {
             <h2 className="text-xl font-semibold mb-4">
               Tandas públicas activas
             </h2>
+
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -254,10 +259,10 @@ export default function Tandas() {
                       const totalETH =
                         (Number(item.contributionAmount) / 1e18) *
                         item.maxParticipants;
-                      const pago = formatAmount(item.contributionAmount);
-                      const total = formatAmount(BigInt(totalETH * 1e18));
+                      const pagoRondaMXN = formatToMXN(item.contributionAmount);
+                      const totalMXN = formatToMXN(BigInt(totalETH * 1e18));
                       const plazo = formatDuration(item.roundDuration);
-                      const periodo = getTotalDuration(
+                      const totalPeriodo = getTotalDuration(
                         item.roundDuration,
                         item.maxParticipants
                       );
@@ -268,39 +273,57 @@ export default function Tandas() {
                           className="border-t hover:bg-gray-50 transition"
                         >
                           <td className="p-3 flex items-center gap-2">
-                            <img
-                              src={
-                                item.image || "https://via.placeholder.com/40"
-                              }
-                              alt={item.name}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                              {!loadedImages[item.address] && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
+                              )}
+                              <img
+                                src={
+                                  item.image || "https://via.placeholder.com/40"
+                                }
+                                alt={item.name}
+                                onLoad={() => handleImageLoad(item.address)}
+                                onError={() => handleImageLoad(item.address)}
+                                className={`rounded-full object-cover w-10 h-10 transition-opacity duration-300 ${loadedImages[item.address]
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                  }`}
+                              />
+                            </div>
                             <span className="font-medium">{item.name}</span>
                           </td>
-                          <td className="p-3">{periodo}</td>
+                          <td className="p-3">{totalPeriodo}</td>
                           <td className="p-3">{plazo}</td>
-                          <td className="p-3">
-                            {total.mxn}
-                            <br />
-                            <span className="text-xs text-gray-500">
-                              {total.eth}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            {pago.mxn}
-                            <br />
-                            <span className="text-xs text-gray-500">
-                              {pago.eth}
-                            </span>
-                          </td>
+                          <td className="p-3">{totalMXN}</td>
+                          <td className="p-3">{pagoRondaMXN}</td>
                           <td className="p-3">{item.maxParticipants}</td>
-                          <td className="p-3">
-                            {item.owner.slice(0, 6)}...{item.owner.slice(-4)}
+                          <td className="p-3 flex items-center gap-2">
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                              {!loadedImages[item.owner] && (
+                                <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
+                              )}
+                              <img
+                                src={`https://i.pravatar.cc/100?u=${item.owner}`}
+                                alt="creator"
+                                onLoad={() => handleImageLoad(item.owner)}
+                                onError={() => handleImageLoad(item.owner)}
+                                className={`rounded-full object-cover w-8 h-8 transition-opacity duration-300 ${loadedImages[item.owner]
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                  }`}
+                              />
+                            </div>
+                            <span className="text-sm text-gray-700">
+                              {item.owner.slice(0, 6)}...{item.owner.slice(-4)}
+                            </span>
                           </td>
                           <td className="p-3">
-                            <button className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition">
-                              Unirme
-                            </button>
+                           <button
+    onClick={() => navigate(`/tanda/${item.address}`)}
+    className="px-3 py-1.5 bg-pink-100 text-pink-700 font-medium rounded-full text-xs hover:bg-pink-200 transition"
+  >
+    Unirme
+  </button>
                           </td>
                         </tr>
                       );

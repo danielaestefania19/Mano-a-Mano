@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { projectId, metadata, networks, wagmiAdapter } from "./config";
 import Sidebar from "./components/Sidebar";
 import Tandas from "./components/Tandas";
+import TandaDetail from "./components/TandaDetail";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/circles" replace />} />
               <Route path="/circles" element={<Tandas />} />
+              <Route path="/tanda/:address" element={<TandaDetail />} />
             </Routes>
         </QueryClientProvider>
       </WagmiProvider>

@@ -28,9 +28,7 @@ const Sidebar: React.FC = () => {
           </NavLink>
         </nav>
       </div>
-      <div className="mt-auto">
-        <appkit-button />
-      </div>
+      
     </aside>
   );
 };
