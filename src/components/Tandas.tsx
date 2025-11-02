@@ -20,6 +20,8 @@ export default function Tandas() {
   } = useSavingsCircles();
   const navigate = useNavigate();
   const chainId = useChainId();
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ethToUsdt, setEthToUsdt] = useState<number>(0);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
